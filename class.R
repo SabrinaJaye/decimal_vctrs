@@ -1,7 +1,8 @@
 ## Define the decimal_vctr class ##
 
 # The decimal_vctr class is based on a record style vector.
-# Underneath it is a list of three equal-length vectors, one logical and two integers.
+# Underneath it is a list of three equal-length vectors, one logical and two
+# integers.
 
 box::use(
   # Packages
@@ -20,7 +21,8 @@ box::use(
   
   # Local modules
   ./checks[check_scq],
-  ./character[scq_as_decimal_character]
+  ./character[scq_as_decimal_character],
+  ./util[normalize_scq]
 )
 
 # 1. Constructor ---------------------------------------------------------------
@@ -34,12 +36,13 @@ box::use(
 #' @export
 new_decimal <- function(s = logical(), c = integer(), q = integer()) {
   # Assert that s, c, and q are of the correct type.
+  # No need to check size at this point, new_rcrd does that for us.
   vec_assert(s, ptype = logical())
   vec_assert(c, ptype = integer())
   vec_assert(q, ptype = integer())
   
   # Create the class
-  new_rcrd(list(s = s, c = c, q = q), class = "decimal_vctr")
+  new_rcrd(normalize_scq(s, c, q), class = "decimal_vctr")
 }
 
 
@@ -47,14 +50,16 @@ new_decimal <- function(s = logical(), c = integer(), q = integer()) {
 
 #' A class for arbitrary precision decimal floating point values and arithmetic
 #' 
-#' User-facing function to create a ait_decimal vector.
+#' User-facing function to create a decimal_vctr.
+#' 
 #' @param s Logical vector indicating the signs.
 #' @param c Integer vector representing the coefficients.
 #' @param q Integer vector representing the quotients.
+#' 
 #' @export
 #' @examples
 #' 
-#' ait_decimal(TRUE, 87, -3)
+#' decimal(TRUE, 87, -3)
 decimal <- function(s = logical(), c = integer(), q = integer()) {
   check_scq(s, c, q)
   
@@ -65,8 +70,6 @@ decimal <- function(s = logical(), c = integer(), q = integer()) {
   # Enforce recycling rules
   c(s, c, q) %<-% vec_recycle_common(s, c, q)
   
-  
-  
   # Create ait_decimal vector
   new_decimal(s = s, c = c, q = q)
 }
@@ -75,7 +78,7 @@ decimal <- function(s = logical(), c = integer(), q = integer()) {
 # 3. Formally declare S3 class -------------------------------------------------
 
 # This is actually not possible in box because of how S4 works only in global
-# namespace or packages. But that's fine, we can stick to S3.
+# namespace or packages. But that's fine, we can stick with S3.
 #
 # setOldClass(c("decimal_vctr", "vctrs_rcrd", "vctrs_vctr"))
 
