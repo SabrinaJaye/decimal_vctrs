@@ -1,6 +1,6 @@
-## Define the ait_decimal class ##
+## Define the decimal_vctr class ##
 
-# The ait_decimal class is based on a record style vector.
+# The decimal_vctr class is based on a record style vector.
 # Underneath it is a list of three equal-length vectors, one logical and two integers.
 
 box::use(
@@ -19,7 +19,8 @@ box::use(
   zeallot[`%<-%`],
   
   # Local modules
-  ./checks[check_scq]
+  ./checks[check_scq],
+  ./character[scq_as_decimal_character]
 )
 
 # 1. Constructor ---------------------------------------------------------------
@@ -38,7 +39,7 @@ new_decimal <- function(s = logical(), c = integer(), q = integer()) {
   vec_assert(q, ptype = integer())
   
   # Create the class
-  new_rcrd(list(s = s, c = c, q = q), class = "ait_decimal")
+  new_rcrd(list(s = s, c = c, q = q), class = "decimal_vctr")
 }
 
 
@@ -54,7 +55,7 @@ new_decimal <- function(s = logical(), c = integer(), q = integer()) {
 #' @examples
 #' 
 #' ait_decimal(TRUE, 87, -3)
-ait_decimal <- function(s = logical(), c = integer(), q = integer()) {
+decimal <- function(s = logical(), c = integer(), q = integer()) {
   check_scq(s, c, q)
   
   # Cast for compatible types
@@ -76,25 +77,22 @@ ait_decimal <- function(s = logical(), c = integer(), q = integer()) {
 # This is actually not possible in box because of how S4 works only in global
 # namespace or packages. But that's fine, we can stick to S3.
 #
-# setOldClass(c("ait_decimal", "vctrs_rcrd", "vctrs_vctr"))
+# setOldClass(c("decimal_vctr", "vctrs_rcrd", "vctrs_vctr"))
 
 
 # 4. Attribute access ----------------------------------------------------------
 
-#' Access the `units` attribute of an `ait_decimal` object.
-#'
-#' @keywords internal
-ait_dec_units <- function(x) attr(x, "units")
+
 
 
 # 5. Class check ---------------------------------------------------------------
 
-#' Test if an object is of class `ait_decimal`
+#' Test if an object is of class `decimal_vctr`
 #' @param x An object.
 #' 
-#' @return `TRUE` if object is of class `ait_decimal` and `FALSE` if it is not.
+#' @return `TRUE` if object is of class `decimal_vctr` and `FALSE` if it is not.
 #' @export
-is_ait_decimal <- function(x) inherits(x, "ait_decimal")
+is_decimal_vctr <- function(x) inherits(x, "decimal_vctr")
 
 
 # 6. Format method -------------------------------------------------------------
@@ -103,20 +101,11 @@ is_ait_decimal <- function(x) inherits(x, "ait_decimal")
 #' 
 #' @keywords internal
 #' @export
-format.ait_decimal <- function(x, ...) {
-  x_valid <- which(!is.na(x))
-  
-  s <- ifelse(field(x, "s"), "-", "")
-  c <- field(x, "c")
-  q <- field(x, "q")
-  
-  out <- paste0(s, c, "e", q)
-  out[are_na(s) | are_na(c) | are_na(q)] <- NA
-  
-  out
+format.decimal_vctr <- function(x, ...) {
+  scq_as_decimal_character(field(x, "s"), field(x, "c"), field(x, "q"))
 }
 
-box::register_S3_method("format", "ait_decimal", format.ait_decimal)
+box::register_S3_method("format", "decimal_vctr", format.decimal_vctr)
 
 
 # 7. Abbreviated name type -----------------------------------------------------
@@ -126,6 +115,10 @@ box::register_S3_method("format", "ait_decimal", format.ait_decimal)
 #' 
 #' @keywords internal
 #' @export
-vec_ptype_abbr.ait_decimal <- function(x) { "ait_decimal" }
+vec_ptype_abbr.decimal_vctr <- function(x) { "decimal_vctr" }
 
-box::register_S3_method("vec_ptype_abbr", "ait_decimal", vec_ptype_abbr.ait_decimal)
+box::register_S3_method(
+  "vec_ptype_abbr",
+  "decimal_vctr",
+  vec_ptype_abbr.decimal_vctr
+)

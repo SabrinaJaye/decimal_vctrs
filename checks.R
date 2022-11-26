@@ -1,12 +1,28 @@
 ## Checks ##
 
 box::use(
-  rlang[are_na],
-  vctrs[
-    vec_size
-  ]
+  cli[cli_abort],
+  rlang[are_na, caller_arg, caller_env],
+  vctrs[vec_size]
 )
 
+# numeric check ----------------------------------------------------------------
+
+numeric_check <- function(x, arg = caller_arg(x), call = caller_env()) {
+  if(!all(are_na(x))){
+    if(!is.numeric(x)) {
+      cli_abort(
+        c(
+          "{.arg {arg}} must be a numeric vector.",
+          "x" = "You've supplied a {.cls {class(x)}} vector."
+        ),
+        call = call
+      )
+    }
+  }
+}
+
+  
 # scq checks -------------------------------------------------------------------
 
 #' Checks for ait_decimal functions
@@ -18,7 +34,7 @@ box::use(
 #' - That they are the same length, length 1, or all length 0
 #' @keywords internal
 #' @export
-check_scq <- function(s, c, q) {
+check_scq <- function(s, c, q, call = caller_env()) {
   # Check the types of s, c, and q
   if (!all(are_na(s))) {
     if (!is.logical(s)) {
@@ -26,17 +42,8 @@ check_scq <- function(s, c, q) {
     }
   }
   
-  if (!all(are_na(c))) {
-    if (!is.integer(c)) {
-      stop(call. = FALSE, "`c` must be a integer vector.")
-    }
-  }
-  
-  if (!all(are_na(q))) {
-    if (!is.integer(q)) {
-      stop(call. = FALSE, "`q` must be a integer vector.")
-    }
-  }
+  numeric_check(c, call = call)
+  numeric_check(q, call = call)
   
   # Check that s, c, and q are same length, length 1, or all length 0.
   lengths <- c(vec_size(s), vec_size(c), vec_size(q))
