@@ -155,31 +155,3 @@ parse_sci_to_dec <- function(x) {
   
   paste0(signs, a, b, c)
 }
-
-
-#'
-#' @keywords internal
-normalize_scq <- function(s, c, q, rounded = FALSE) {
-  tz <- trailing_zeros(c)
-  new_c <- c %/% 10L ^ tz
-  new_q <- q + tz
-  new_q[new_c == 0L & !s] <- 0L
-  
-  list(s = s, c = new_c, q = new_q)
-}
-
-
-trailing_zeros <- function(int_vec) {
-  stopifnot(is.integer(int_vec) || is.bigz(int_vec))
-  trailing <- integer(length(int_vec))
-  non_zero <- int_vec != 0L
-  nz_int <- int_vec[non_zero]
-  nz_trailing <- trailing[non_zero]
-  update <- (nz_int %% 10L ^ (nz_trailing + 1L) == 0L)
-  while(any(update)) {
-    nz_trailing <- nz_trailing + update
-    update <- (nz_int %% 10L ^ (nz_trailing + 1L) == 0L)
-  }
-  trailing[non_zero] <- nz_trailing
-  return(trailing)
-}
