@@ -3,7 +3,7 @@
 box::use(
   cli[cli_abort],
   rlang[are_na, caller_arg, caller_env],
-  vctrs[vec_size]
+  vctrs[vec_size, vec_unique_count]
 )
 
 # numeric check ----------------------------------------------------------------
@@ -56,8 +56,8 @@ check_scq <- function(s, c, q, call = caller_env()) {
   lengths <- c(vec_size(s), vec_size(c), vec_size(q))
   
   # Must be either all zero length or no zero length
-  if (!all(lengths == 0L) || any(lengths == 0L)) {
-    missing <- c("`s`", "`c`", "`q`")[lengths == 0]
+  if (!all(lengths == 0L) && any(lengths == 0L)) {
+    missing <- c("`s`", "`c`", "`q`")[lengths == 0L]
     cli_abort(
       c(
         "{missing} {?is/are} absent but must be supplied.",
