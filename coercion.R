@@ -46,3 +46,12 @@ box::register_S3_method(
   "character.decimal_vctr",
   vec_ptype2.character.decimal_vctr
 )
+
+
+# b) logical -------------------------------------------------------------------
+
+#' @export
+vec_ptype2.decimal_vctr.logical <- function(x, y, ...) x
+
+#' @export
+vec_ptype2.logical.decimal_vctr <- function(x, y, ...) y
