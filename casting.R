@@ -4,7 +4,8 @@ box::use(
   readr[parse_integer],
   vctrs[
     vec_cast
-  ]
+  ],
+  ./class[decimal]
 )
 
 # A) decimal_vctr --------------------------------------------------------------
